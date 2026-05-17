@@ -3,10 +3,10 @@ import * as SecureStore from 'expo-secure-store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // ✅ URL de production Render — remplacer par ton URL réelle après déploiement
-export const API_BASE_URL = 'https://backend-pylearn.onrender.com/api';
+// export const API_BASE_URL = 'https://backend-pylearn.onrender.com/api';
 
 // Pour le développement local, commenter la ligne ci-dessus et décommenter :
-// export const API_BASE_URL = 'http://192.168.1.67:8001/api';
+export const API_BASE_URL = 'http://192.168.1.73:8001/api';
 
 const api = axios.create({ baseURL: API_BASE_URL });
 
