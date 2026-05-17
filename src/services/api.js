@@ -1,23 +1,15 @@
-// src/services/api.js
-// ─── Même logique que frontend/src/services/api.js
-// ─── Remplace localStorage → AsyncStorage / SecureStore
-// ─── URL de base : mettre l'IP de votre machine sur le réseau local
-//     (pas "localhost" depuis un device physique)
-
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// ⚠️  CONFIGURER selon votre environnement :
-//   - Émulateur Android  : http://10.0.2.2:8000/api
-//   - Device physique    : http://<IP_LOCALE>:8000/api  (ex: http://192.168.1.42:8000/api)
-//   - Expo Web           : http://localhost:8000/api
-//   - Prod               : https://api.votre-domaine.com/api
-export const API_BASE_URL = 'http://192.168.1.67:8001/api';
+// ✅ URL de production Render — remplacer par ton URL réelle après déploiement
+export const API_BASE_URL = 'https://backend-pylearn.onrender.com/api';
+
+// Pour le développement local, commenter la ligne ci-dessus et décommenter :
+// export const API_BASE_URL = 'http://192.168.1.67:8001/api';
 
 const api = axios.create({ baseURL: API_BASE_URL });
 
-// ─── Helpers token (SecureStore pour les tokens sensibles) ────
 export const TokenStore = {
   async getAccess() {
     try { return await SecureStore.getItemAsync('access_token'); }
@@ -45,14 +37,12 @@ export const TokenStore = {
   },
 };
 
-// ─── Intercepteur : injection du token Bearer ─────────────────
 api.interceptors.request.use(async (cfg) => {
   const token = await TokenStore.getAccess();
   if (token) cfg.headers.Authorization = `Bearer ${token}`;
   return cfg;
 });
 
-// ─── Intercepteur : auto-refresh sur 401 ─────────────────────
 api.interceptors.response.use(
   (res) => res,
   async (err) => {
@@ -68,7 +58,6 @@ api.interceptors.response.use(
           return api(original);
         } catch {
           await TokenStore.clear();
-          // L'AuthContext détectera l'absence de token au prochain appel
         }
       }
     }
@@ -76,7 +65,6 @@ api.interceptors.response.use(
   }
 );
 
-// ─── Services (miroir exact du frontend) ─────────────────────
 export const authService = {
   register: (data) => api.post('/auth/register/', data),
   login: (data) => api.post('/auth/login/', data),
